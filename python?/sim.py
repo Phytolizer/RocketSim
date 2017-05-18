@@ -3,7 +3,7 @@ timestep = 0.001
 G = 6.67*10**(-11) # constant
 R=6.4*10**6 # constant
 r=R
-altitude = r-R
+alt = r - R
 payload=12000 # constant
 fuel1=28000
 tank1=2000
@@ -15,7 +15,7 @@ time = 0
 velocity = 0
 accel = 0
 segment = 1
-liftofftime=0
+liftoff_time=0
 
 def getfuelrate():
     if fuel1 > 0:
@@ -45,7 +45,7 @@ def gravforce():
     return (G * total_mass * earth_mass) / (r ** 2)
 
 def dragforce():
-    global altitude
+    global alt
     b=0
     if altitude<200000:
         b=100-0.0005*altitude
@@ -55,9 +55,9 @@ def kinematics():
     global velocity
     global r
     global total_mass
-    global altitude
+    global alt
     global accel
-    global liftofftime
+    global liftoff_time
     total_mass = payload + fuel
     f_net=getthrustforce() - gravforce() + dragforce()
     if f_net > 0 and liftofftime == 0:
@@ -73,7 +73,7 @@ while time < 300:
     global time
     print('velocity: ' + str(velocity))
     print('time: ' + str(time))
-    print('altitude: ' + str(altitude))
+    print('altitude: ' + str(alt))
     kinematics()
     time += timestep
 
