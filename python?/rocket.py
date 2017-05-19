@@ -1,6 +1,10 @@
 # import time
 import os
 
+import sys
+
+import math
+
 earth_mass = 6 * 10 ** 24  # constant
 time_step = 0.01
 G = 6.67 * 10 ** (-11)  # constant
@@ -10,10 +14,11 @@ alt = r - earth_radius
 payload = 12000  # constant
 fuel1 = 28000
 tank1 = 2000
-fuel2 = 0  # change this pls
+fuel2 = 17101  # change this pls
 total_mass = payload + fuel1 + tank1 + fuel2
 v_ex1 = 5000
 v_ex2 = 7500
+v200k = 0
 time = 0
 tank_time = 0
 velocity = 0
@@ -45,14 +50,13 @@ def burn_rate():
 
 def thrust_force():
 	global tank1
-	if segment == 1:
+	if fuel1 > 0:
 		global fuel1
 		rate = burn_rate()
-		if fuel1 > 0:
-			if fuel1 - burn_rate() * time_step <= 0:
-				global tank_time
-				tank_time = 0
-			fuel1 -= burn_rate() * time_step
+		if fuel1 - burn_rate() * time_step <= 0:
+			global tank_time
+			tank_time = 0
+		fuel1 -= burn_rate() * time_step
 		return rate * v_ex1
 	else:
 		tank1 = 0
@@ -63,7 +67,10 @@ def thrust_force():
 
 
 def grav_force():
-	return (G * total_mass * earth_mass) / (r ** 2)
+	if segment == 1:
+		return (G * total_mass * earth_mass) / (r ** 2)
+	else:
+		return 0
 
 
 def drag_force():
@@ -73,7 +80,7 @@ def drag_force():
 
 
 def kinematics():
-	global velocity, segment, r, total_mass, alt, accel, liftoff_time
+	global velocity, segment, v200k, r, total_mass, alt, accel, liftoff_time
 	total_mass = payload + fuel1 + fuel2 + tank1
 	f_net = thrust_force() - grav_force() + drag_force()
 	if f_net > 0 and liftoff_time == 0:
@@ -89,20 +96,22 @@ def kinematics():
 			segment = 2
 	velocity = velocity + accel * time_step
 	alt = r - earth_radius
+	if v200k == 0 and alt >= 200000:
+		v200k = velocity
 
+v_prev = 0.0
 
-while alt < 380000 and ((alt > 0) if time > 10 else True):
+while (math.fabs(velocity - v_prev) > 0.000001 if alt > 100 else True):
 	global time
 	os.system('clear')
-	print()
-	print('time: ' + str(time))
-	print('velocity: ' + str(velocity))
-	print('altitude: ' + str(alt))
-	print('thrust force: ' + str(burn_rate() * v_ex1))
-	print('accel: ' + str(accel))
+	v_prev = velocity
 	kinematics()
 	time += time_step
 	tank_time += time_step
 
-print(G)
-print(liftoff_time)
+print('time: ' + str(time))
+print('velocity: ' + str(velocity))
+print('altitude: ' + str(alt))
+print('v. err.: ' + str(velocity - 7600))
+print('v at 200 km: ' + str(v200k))
+print('liftoff time: ' + str(liftoff_time))
