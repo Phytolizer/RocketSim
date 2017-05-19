@@ -6,7 +6,7 @@ import sys
 import math
 
 earth_mass = 6 * 10 ** 24  # constant
-time_step = 0.01
+time_step = 0.1
 G = 6.67 * 10 ** (-11)  # constant
 earth_radius = 6.4 * 10 ** 6  # constant
 r = earth_radius
@@ -115,3 +115,4 @@ print('altitude: ' + str(alt))
 print('v. err.: ' + str(velocity - 7600))
 print('v at 200 km: ' + str(v200k))
 print('liftoff time: ' + str(liftoff_time))
+os.system('notify-send \"Your thing is done\"')
