@@ -6,7 +6,7 @@ import sys
 import math
 
 earth_mass = 6 * 10 ** 24  # constant
-time_step = 0.1
+time_step = 0.0000000000001
 G = 6.67 * 10 ** (-11)  # constant
 earth_radius = 6.4 * 10 ** 6  # constant
 r = earth_radius
@@ -14,7 +14,7 @@ alt = r - earth_radius
 payload = 12000  # constant
 fuel1 = 28000
 tank1 = 2000
-fuel2 = 17101  # change this pls
+fuel2 = 17091  # change this pls
 total_mass = payload + fuel1 + tank1 + fuel2
 v_ex1 = 5000
 v_ex2 = 7500
@@ -103,7 +103,6 @@ v_prev = 0.0
 
 while (math.fabs(velocity - v_prev) > 0.000001 if alt > 100 else True):
 	global time
-	os.system('clear')
 	v_prev = velocity
 	kinematics()
 	time += time_step
