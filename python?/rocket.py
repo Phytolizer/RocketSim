@@ -1,4 +1,5 @@
 # import time
+import os
 
 earth_mass = 6 * 10 ** 24  # constant
 time_step = 0.01
@@ -9,11 +10,12 @@ alt = r - earth_radius
 payload = 12000  # constant
 fuel1 = 28000
 tank1 = 2000
-fuel2 = 10000  # change this pls
+fuel2 = 0  # change this pls
 total_mass = payload + fuel1 + tank1 + fuel2
 v_ex1 = 5000
 v_ex2 = 7500
 time = 0
+tank_time = 0
 velocity = 0
 accel = 0
 segment = 1
@@ -22,10 +24,7 @@ liftoff_time = 0
 
 
 def burn_rate():
-	global time
-	global segment
-	global fuel1
-	global fuel2
+	global time, segment, fuel1, fuel2
 	if fuel1 > 0:
 		if time < 10:
 			return 20 * time
@@ -33,9 +32,7 @@ def burn_rate():
 			return 200
 	else:
 		fuel1 = 0
-		if segment == 1:
-			time = 0
-		segment = 2
+
 		if fuel2 > 0:
 			if 25 * time + 100 > 250:
 				return 250
@@ -51,7 +48,11 @@ def thrust_force():
 	if segment == 1:
 		global fuel1
 		rate = burn_rate()
-		fuel1 -= burn_rate() * time_step
+		if fuel1 > 0:
+			if fuel1 - burn_rate() * time_step <= 0:
+				global tank_time
+				tank_time = 0
+			fuel1 -= burn_rate() * time_step
 		return rate * v_ex1
 	else:
 		tank1 = 0
@@ -72,12 +73,7 @@ def drag_force():
 
 
 def kinematics():
-	global velocity
-	global r
-	global total_mass
-	global alt
-	global accel
-	global liftoff_time
+	global velocity, segment, r, total_mass, alt, accel, liftoff_time
 	total_mass = payload + fuel1 + fuel2 + tank1
 	f_net = thrust_force() - grav_force() + drag_force()
 	if f_net > 0 and liftoff_time == 0:
@@ -86,13 +82,18 @@ def kinematics():
 		f_net = 0
 		alt = 0
 	accel = f_net / total_mass
-	r += velocity * time_step + .5 * accel * time_step ** 2
+	if segment != 2:
+		r += velocity * time_step + .5 * accel * time_step ** 2
+		alt = r - earth_radius
+		if alt >= 380000:
+			segment = 2
 	velocity = velocity + accel * time_step
 	alt = r - earth_radius
 
 
-while time < 1000:
+while alt < 380000 and ((alt > 0) if time > 10 else True):
 	global time
+	os.system('clear')
 	print()
 	print('time: ' + str(time))
 	print('velocity: ' + str(velocity))
@@ -101,6 +102,7 @@ while time < 1000:
 	print('accel: ' + str(accel))
 	kinematics()
 	time += time_step
+	tank_time += time_step
 
 print(G)
 print(liftoff_time)
